@@ -1,0 +1,24 @@
+{
+  "name": "ait-animation",
+  "version": "0.3.0",
+  "description": "Ait module for doing animation things",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mollerse/ait-animation.git"
+  },
+  "keywords": [
+    "Ait",
+    "animation"
+  ],
+  "author": "Stian Møllersen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mollerse/ait-animation/issues"
+  },
+  "homepage": "https://github.com/mollerse/ait-animation#readme",
+  "peerDependencies": {
+    "ait-lang": "^0.3.0"
+  }
+}

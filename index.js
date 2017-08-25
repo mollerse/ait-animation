@@ -1,24 +1,54 @@
-const { aitFFIUnwrapValue: unwrap, aitFFI__F } = require('ait-lang/ffi');
+const {
+  aitFFIUnwrapValue: unwrap,
+  aitFFIWrapValue: wrap,
+  aitFFI__F: aitFFIF,
+  aitFFILookupVariable: lookup,
+  aitFFIStoreRootVariable: store
+} = require('ait-lang/ffi');
 
 function fpsToMs(fps) {
   // We know that 60fps means 16.5ms to do all calcs
   return 60 / fps * 16.5;
 }
 
-function rAF(fps, quote) {
-  const timestamp = new Date().valueOf();
-  const msThreshold = fpsToMs(unwrap(fps));
+var ANIMATIONS = '__aitAnimationAnimations';
 
-  const frame = () => {
+function stopAnimations() {
+  var animations = lookup(this, ANIMATIONS);
+  if (!animations) {
+    return;
+  } else {
+    animations = unwrap(animations);
+    Object.keys(animations).forEach(function(t) {
+      cancelAnimationFrame(animations[t]);
+      delete animations[t];
+    });
+  }
+}
+
+function animate(fps, quote) {
+  var animations = lookup(this, ANIMATIONS);
+
+  if (!animations) {
+    animations = {};
+    store(this, ANIMATIONS, wrap(animations));
+  } else {
+    animations = unwrap(animations);
+  }
+
+  var timestamp = new Date().valueOf();
+  var msThreshold = fpsToMs(unwrap(fps));
+
+  var frame = () => {
     this.program = [...quote.body];
     this.executeProgram();
   };
-  const animationId = id => this.addAnimation(timestamp, id);
+  var animationId = id => (animations[timestamp] = id);
 
-  let rafID;
-  let lastFrame = 0;
+  var rafID;
+  var lastFrame = 0;
   function inner(t) {
-    const delta = t - lastFrame;
+    var delta = t - lastFrame;
 
     rafID = requestAnimationFrame(inner);
     animationId(rafID);
@@ -36,4 +66,7 @@ function rAF(fps, quote) {
   animationId(rafID);
 }
 
-module.exports = { rAF: aitFFI__F(2, 'rAF', rAF) };
+module.exports = {
+  animate: aitFFIF(2, 'animate', animate),
+  stopAnimations: aitFFIF(0, 'stopAnimations', stopAnimations)
+};
